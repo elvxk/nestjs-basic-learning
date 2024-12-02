@@ -1,34 +1,36 @@
-import { Controller, Get, HttpStatus, Post, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Res,
+} from '@nestjs/common';
+import { ProjectsService } from './projects.service';
+import { Response } from 'express';
 
 @Controller('projects')
 export class ProjectsController {
-  @Get()
-  findAll(@Res() res: Response) {
-    res.status(HttpStatus.OK).send({
-      status: HttpStatus.OK,
-      success: true,
-      data: {
-        name: 'NestJS',
-        date: new Date().toLocaleString(),
-      },
-    });
-  }
+  constructor(private readonly projectService: ProjectsService) {}
 
-  @Post()
-  create(@Req() req: Request, @Res() res: Response) {
+  @Get()
+  async findAll(@Res() res: Response) {
     try {
-      const data = req.body;
-      if (!data) {
-        res.status(HttpStatus.BAD_REQUEST).send({
-          status: HttpStatus.BAD_REQUEST,
-          success: false,
-          message: 'Bad request',
-        });
-      }
-      res.status(HttpStatus.CREATED).send(data);
+      const projects = await this.projectService.findAll();
+      res.status(HttpStatus.OK).send({
+        statusCode: HttpStatus.OK,
+        message: 'success get all projects',
+        data: projects,
+      });
     } catch (error) {
-      res.send(error.message);
+      if (error instanceof HttpException) {
+        return res.status(error.getStatus()).send(error.getResponse());
+      }
+
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error',
+        error: error.message || 'Unknown error occurred',
+      });
     }
   }
 }
