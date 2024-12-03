@@ -5,6 +5,6 @@ export interface Project {
   stack: string;
   demo: string;
   image: string;
-  createdAt: string;
-  updatedAt: string;
+  created_at: Date;
+  updated_at: Date;
 }
