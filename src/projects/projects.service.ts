@@ -22,4 +22,13 @@ export class ProjectsService {
       },
     });
   }
+
+  async update(id: string, data: Prisma.ProjectsUpdateInput) {
+    return this.prisma.projects.update({
+      where: {
+        id,
+      },
+      data,
+    });
+  }
 }
