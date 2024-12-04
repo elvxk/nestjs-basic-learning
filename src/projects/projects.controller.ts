@@ -8,6 +8,7 @@ import {
   NotFoundException,
   Post,
   Put,
+  Query,
   Res,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
@@ -21,9 +22,17 @@ export class ProjectsController {
   constructor(private readonly projectService: ProjectsService) {}
 
   @Get()
-  async findAll(@Res() res: Response) {
+  async findAll(@Query('limit') limit: number, @Res() res: Response) {
     try {
-      const projects = await this.projectService.findAll();
+      const limitNumber = Number(limit);
+      if (isNaN(limitNumber)) {
+        return res.status(HttpStatus.BAD_REQUEST).send({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'limit must be a number',
+        });
+      }
+
+      const projects = await this.projectService.findAll(limitNumber);
 
       if (!projects || projects.length === 0) {
         throw new HttpException('Data not found', HttpStatus.NOT_FOUND);
@@ -31,7 +40,9 @@ export class ProjectsController {
 
       return res.status(HttpStatus.OK).send({
         statusCode: HttpStatus.OK,
-        message: 'success get all projects',
+        message: limit
+          ? `Success get ${projects.length} projects (limited to ${limit})`
+          : 'Success get all projects',
         data: projects,
       });
     } catch (error) {

@@ -7,8 +7,13 @@ import { Prisma } from '@prisma/client';
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
-    return this.prisma.projects.findMany();
+  async findAll(limit: number) {
+    return this.prisma.projects.findMany({
+      orderBy: {
+        created_at: 'desc',
+      },
+      take: limit as number,
+    });
   }
 
   async create(data: Prisma.ProjectsCreateInput): Promise<Project> {
