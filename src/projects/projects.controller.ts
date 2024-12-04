@@ -24,8 +24,8 @@ export class ProjectsController {
   @Get()
   async findAll(@Query('limit') limit: number, @Res() res: Response) {
     try {
-      const limitNumber = Number(limit);
-      if (isNaN(limitNumber)) {
+      const limitNumber = limit ? Number(limit) : undefined;
+      if (isNaN(limitNumber) && limitNumber != undefined) {
         return res.status(HttpStatus.BAD_REQUEST).send({
           statusCode: HttpStatus.BAD_REQUEST,
           message: 'limit must be a number',
